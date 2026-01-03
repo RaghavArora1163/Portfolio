@@ -160,6 +160,7 @@ class PortfolioHome extends StatelessWidget {
                     "REST APIs",
                     "JWT",
                     "MoviePy",
+                    "AI/ML Integration",
                     "FFmpeg"
                   ].map(skillChip).toList(),
                 ),
