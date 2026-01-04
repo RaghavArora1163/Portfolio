@@ -137,7 +137,7 @@ class PortfolioHome extends StatelessWidget {
 
                 sectionTitle("About"),
                 const Text(
-                    "Full-stack developer passionate about AI, backend systems, scalable APIs, and Flutter applications. Experienced in Flask, Node.js, Firebase and ML workflows."),
+                    "Full-stack developer passionate about AI, backend systems, scalable APIs, and Flutter applications. Experienced in Flask, Node.js, Firebase and ML workflows. committed to building efficient and intelligent software solutions."),
 
                 sectionTitle("Work Experience"),
                 expTile("Quadrant Digital Solutions", "Full Stack Developer",
