@@ -33,56 +33,310 @@ class _PortfolioAppState extends State<PortfolioApp> {
   }
 }
 
-class PortfolioHome extends StatelessWidget {
+/// MAIN HOME
+class PortfolioHome extends StatefulWidget {
   final VoidCallback toggleTheme;
 
   const PortfolioHome({super.key, required this.toggleTheme});
 
-  Widget sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 35.0, bottom: 6),
-      child: Text(title,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+  @override
+  State<PortfolioHome> createState() => _PortfolioHomeState();
+}
+
+class _PortfolioHomeState extends State<PortfolioHome>
+    with TickerProviderStateMixin {
+
+  /// Animation controllers
+  late final AnimationController _fadeController =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+        ..forward();
+
+  late final AnimationController _slideController =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+        ..forward();
+
+  final ScrollController _scroll = ScrollController();
+
+  /// KEYS FOR NAVIGATION SCROLL
+  final aboutKey = GlobalKey();
+  final projectsKey = GlobalKey();
+  final skillsKey = GlobalKey();
+  final contactKey = GlobalKey();
+
+  void scrollTo(GlobalKey key) {
+    Scrollable.ensureVisible(
+      key.currentContext!,
+      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 600),
     );
   }
 
-  Widget skillChip(String text) {
-    return Chip(
-      label: Text(text),
-      backgroundColor: Colors.black,
-      labelStyle: const TextStyle(color: Colors.white),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-    );
-  }
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 800;
 
-  Widget expTile(String title, String subtitle, String date) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      margin: const EdgeInsets.only(top: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(.12),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Scaffold(
+      appBar: isMobile
+          ? AppBar(
+              title: const Text("Raghav Portfolio"),
+              actions: [
+                IconButton(
+                  onPressed: widget.toggleTheme,
+                  icon: const Icon(Icons.dark_mode_outlined),
+                )
+              ],
+            )
+          : null,
+
+      drawer: isMobile
+          ? Drawer(
+              child: ListView(
+                padding: const EdgeInsets.all(12),
+                children: [
+                  const DrawerHeader(
+                    child: Text("Navigation",
+                        style:
+                            TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  ),
+                  ListTile(
+                      title: const Text("About"),
+                      onTap: () => scrollTo(aboutKey)),
+                  ListTile(
+                      title: const Text("Skills"),
+                      onTap: () => scrollTo(skillsKey)),
+                  ListTile(
+                      title: const Text("Projects"),
+                      onTap: () => scrollTo(projectsKey)),
+                  ListTile(
+                      title: const Text("Contact"),
+                      onTap: () => scrollTo(contactKey)),
+                ],
+              ),
+            )
+          : null,
+
+      body: Row(
         children: [
-          Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(subtitle)]),
-          Text(date)
+          /// DESKTOP SIDE NAV BAR
+          if (!isMobile)
+            NavigationRail(
+              destinations: const [
+                NavigationRailDestination(
+                    icon: Icon(Icons.person), label: Text("About")),
+                NavigationRailDestination(
+                    icon: Icon(Icons.star), label: Text("Skills")),
+                NavigationRailDestination(
+                    icon: Icon(Icons.work), label: Text("Projects")),
+                NavigationRailDestination(
+                    icon: Icon(Icons.mail), label: Text("Contact")),
+              ],
+              selectedIndex: 0,
+              onDestinationSelected: (i) {
+                if (i == 0) scrollTo(aboutKey);
+                if (i == 1) scrollTo(skillsKey);
+                if (i == 2) scrollTo(projectsKey);
+                if (i == 3) scrollTo(contactKey);
+              },
+            ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _scroll,
+              padding: const EdgeInsets.all(18),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 950),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /// HERO SECTION WITH ANIMATION
+                    FadeTransition(
+                      opacity: _fadeController,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                                begin: const Offset(0, .2), end: Offset.zero)
+                            .animate(_slideController),
+                        child: LayoutBuilder(
+                          builder: (context, c) {
+                            final mobile = c.maxWidth < 700;
+
+                            return mobile
+                                ? Column(
+                                    children: const [
+                                      CircleAvatar(
+                                          radius: 60,
+                                          backgroundImage: NetworkImage(
+                                              "https://via.placeholder.com/140")),
+                                      SizedBox(height: 12),
+                                      Text("Hi, I'm Raghav Arora 👋",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 6),
+                                      Text(
+                                        "Building intelligent apps and scalable backend systems.",
+                                        textAlign: TextAlign.center,
+                                      )
+                                    ],
+                                  )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: const [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text("Hi, I'm Raghav Arora 👋",
+                                              style: TextStyle(
+                                                  fontSize: 44,
+                                                  fontWeight: FontWeight.bold)),
+                                          SizedBox(height: 8),
+                                          SizedBox(
+                                              width: 500,
+                                              child: Text(
+                                                  "Building intelligent apps and scalable backend systems."))
+                                        ],
+                                      ),
+                                      CircleAvatar(
+                                          radius: 60,
+                                          backgroundImage: NetworkImage(
+                                              "https://via.placeholder.com/140"))
+                                    ],
+                                  );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    /// ABOUT
+                    sectionTitle("About", aboutKey),
+                    animatedText(
+                        "Full-stack developer passionate about AI, backend systems, scalable APIs, and Flutter applications. Experienced in Flask, Node.js, Firebase and ML workflows."),
+
+                    /// SKILLS
+                    sectionTitle("Skills", skillsKey),
+                    animatedWrap([
+                      "Python",
+                      "Flask",
+                      "Django",
+                      "Node.js",
+                      "React",
+                      "Flutter",
+                      "Firebase",
+                      "FastAPI",
+                      "REST APIs",
+                      "JWT",
+                      "MoviePy",
+                      "AI/ML Integration",
+                      "FFmpeg"
+                    ]),
+
+                    /// PROJECTS GRID
+                    sectionTitle("Projects", projectsKey),
+
+                    LayoutBuilder(
+  builder: (context, constraints) {
+    int count = 2;
+
+    if (constraints.maxWidth < 600) count = 1;
+    if (constraints.maxWidth > 1100) count = 3;
+
+    return GridView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: count,
+        crossAxisSpacing: 14,
+        mainAxisSpacing: 14,
+
+        /// 👇 KEY FIX — controls height of each card
+        mainAxisExtent: 170,
+      ),
+      itemCount: 3,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return projectCard(
+            "Smart Story Teller",
+            "AI storytelling with TTS and video generation",
+            ["Python", "Flask", "MoviePy"],
+          );
+        } else if (index == 1) {
+          return projectCard(
+            "Flask Backend System",
+            "Auth, contests, Firebase secure APIs",
+            ["Flask", "JWT", "Firebase"],
+          );
+        } else {
+          return projectCard(
+            "Medical Learning App",
+            "Flutter UI + Firebase backend",
+            ["Flutter", "Dart", "Firebase"],
+          );
+        }
+      },
+    );
+  },
+)
+,
+
+                    /// CONTACT
+                    sectionTitle("Get in Touch", contactKey),
+                    animatedText(
+                        "Email: raghavarora1163@gmail.com\nPhone: +91 8955013675"),
+
+                    const SizedBox(height: 90),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget projectCard(String title, String description, List<String> tags) {
-    return Container(
+  /// ---------- REUSABLE UI HELPERS ----------
+
+  Widget sectionTitle(String title, Key key) {
+    return Padding(
+      key: key,
+      padding: const EdgeInsets.only(top: 35, bottom: 6),
+      child: Text(title,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget animatedText(String text) {
+    return AnimatedOpacity(
+      opacity: 1,
+      duration: const Duration(milliseconds: 900),
+      child: Text(text),
+    );
+  }
+
+  Widget animatedWrap(List<String> list) {
+    return Wrap(
+      spacing: 8,
+      children: list
+          .map((e) => Chip(
+                label: Text(e),
+                backgroundColor: Colors.black,
+                labelStyle: const TextStyle(color: Colors.white),
+              ))
+          .toList(),
+    );
+  }
+
+  Widget projectCard(String title, String desc, List<String> tags) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(.12),
-        borderRadius: BorderRadius.circular(14),
-      ),
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.grey.withOpacity(.12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,154 +344,12 @@ class PortfolioHome extends StatelessWidget {
               style:
                   const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 4),
-          Text(description),
-          const SizedBox(height: 8),
-          Wrap(spacing: 6, children: tags.map((e) => Chip(label: Text(e))).toList())
+          Text(desc),
+          const SizedBox(height: 6),
+          Wrap(
+              spacing: 5,
+              children: tags.map((t) => Chip(label: Text(t))).toList())
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(18),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // HERO
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Hi, I'm Raghav Arora 👋",
-                            style: TextStyle(
-                                fontSize: 44, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 6),
-                        SizedBox(
-                          width: 500,
-                          child: Text(
-                              "Building intelligent apps and scalable backend systems."),
-                        )
-                      ],
-                    ),
-                    const CircleAvatar(
-                      radius: 60,
-                      backgroundImage:
-                          NetworkImage("https://via.placeholder.com/140"),
-                    )
-                  ],
-                ),
-
-                sectionTitle("About"),
-                const Text(
-                    "Full-stack developer passionate about AI, backend systems, scalable APIs, and Flutter applications. Experienced in Flask, Node.js, Firebase and ML workflows. committed to building efficient and intelligent software solutions."),
-
-                sectionTitle("Work Experience"),
-                expTile("Quadrant Digital Solutions", "Full Stack Developer",
-                    "Apr 2024 – Present"),
-                expTile("Bookzy Edufy Pvt Ltd", "Python Backend Developer",
-                    "Nov 2023 – Feb 2024"),
-
-                sectionTitle("Skills"),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    "Python",
-                    "Flask",
-                    "Django",
-                    "Node.js",
-                    "React",
-                    "Flutter",
-                    "Firebase",
-                    "FastAPI",
-                    "REST APIs",
-                    "JWT",
-                    "MoviePy",
-                    "AI/ML Integration",
-                    "FFmpeg"
-                  ].map(skillChip).toList(),
-                ),
-
-                const SizedBox(height: 10),
-                Center(
-                    child: FilledButton(
-                        onPressed: () {},
-                        child: const Text("My Projects"))),
-
-                sectionTitle("Projects"),
-
-                GridView.count(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  children: [
-                    projectCard("Smart Story Teller",
-                        "AI storytelling with TTS and video generation", [
-                      "Python",
-                      "Pollination AI ( Open Source AI)",
-                      "Flask",
-                      "MoviePy"
-                    ]),
-                    projectCard("Flask Backend System",
-                        "Auth, contests, Firebase secure APIs", [
-                      "Flask",
-                      "JWT",
-                      "Firebase"
-                    ]),
-                    projectCard("Medical Learning App",
-                        "Flutter UI + Firebase backend", [
-                      "Flutter",
-                      "Dart",
-                      "Firebase"
-                    ]),
-                  ],
-                ),
-
-                sectionTitle("Education"),
-                expTile("Indian Institure of Technolgy Ropar", "Diploma Degree (Artificial Intelligence )",
-                    "2024 – 2025"),
-                expTile("Arya College of Engineering & IT", "B.Tech (ECE)",
-                    "2019 – 2023"),
-
-                sectionTitle("Get in Touch"),
-                const Text(
-                    "Email: raghavarora1163@gmail.com\nPhone: +91 8955013675"),
-                const SizedBox(height: 80),
-              ],
-            ),
-          ),
-        ),
-      ),
-
-      // floating bottom navigation bar
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(40),
-            color: Colors.grey.withOpacity(.2)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.home)),
-            IconButton(
-                onPressed: () {}, icon: const Icon(Icons.dataset_rounded)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.link)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.person)),
-            IconButton(
-                onPressed: toggleTheme,
-                icon: const Icon(Icons.dark_mode_outlined)),
-          ],
-        ),
       ),
     );
   }
