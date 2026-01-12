@@ -190,7 +190,7 @@ class _PortfolioHomeState extends State<PortfolioHome>
                                           SizedBox(
                                               width: 500,
                                               child: Text(
-                                                  "Building intelligent apps and scalable backend systems."))
+                                                  "Building intelligent apps and scalable backend systems with Flutter and flask with degree in artificial intelligence from IIT Ropar. and passionate about technology."))
                                         ],
                                       ),
                                       CircleAvatar(
