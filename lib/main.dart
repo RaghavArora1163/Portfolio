@@ -182,7 +182,7 @@ class _PortfolioHomeState extends State<PortfolioHome>
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text("Hi, I'm Er. Raghav Arora 👋",
+                                          Text("Hi, I'm Er. Raghav Arora👋",
                                               style: TextStyle(
                                                   fontSize: 44,
                                                   fontWeight: FontWeight.bold)),
@@ -208,7 +208,7 @@ class _PortfolioHomeState extends State<PortfolioHome>
 
                     sectionTitle("About", aboutKey),
                     animatedText(
-                        "Full-stack developer passionate about AI, backend systems, scalable APIs, and Flutter applications."),
+                        "Full-stack developer passionate about AI, backend systems, scalable APIs, and Flutter applications. Graduated from IIT Ropar with a degree in Artificial Intelligence. Experienced in building intelligent applications and robust backend solutions using Flask and Flutter."),
 
                     sectionTitle("Skills", skillsKey),
                     animatedWrap([
